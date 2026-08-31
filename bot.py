@@ -2,7 +2,7 @@ import requests
 import time
 import os
 
-TOKEN = ""
+TOKEN = os.environ["TELEGRAM_TOKEN"]
 CHAT_ID = -1003846952857
 
 PASTA = os.path.dirname(os.path.abspath(__file__))
