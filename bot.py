@@ -1,35 +1,41 @@
-import requests
 import os
+import requests
 
 TOKEN = os.environ["TELEGRAM_TOKEN"]
 CHAT_ID = -1003846952857
 
-PASTA = os.path.dirname(os.path.abspath(__file__))
-ARQUIVO = os.path.join(PASTA, "promocoes.txt")
+with open("promocoes.txt", "r", encoding="utf-8") as arquivo:
+    linhas = [x.strip() for x in arquivo if x.strip()]
 
-def enviar(produto, preco, link):
-    mensagem = f"""Promo do Surfista 🌊🌊
+if len(linhas) >= 3:
+    produto = linhas[0]
+    preco = linhas[1]
+    link = linhas[2]
 
-🏄‍♂️ {produto}
+    mensagem = f"""🌊 PROMO DO SURFISTA 🏄
+
+🛍️ {produto}
 💰 {preco}
 
 🛒 COMPRE AQUI 👇
 {link}
 
-⚡ Aproveite enquanto durar!"""
+🏄‍♂️ Aproveita essa onda antes que ela passe! 🌊"""
 
-    r = requests.post(
+    resposta = requests.post(
         f"https://api.telegram.org/bot{TOKEN}/sendMessage",
-        data={"chat_id": CHAT_ID, "text": mensagem}
+        data={
+            "chat_id": CHAT_ID,
+            "text": mensagem
+        }
     )
 
-    print("✅ Enviado:", produto) if r.ok else print("❌ Erro:", r.text)
+    if resposta.ok:
+        print("Promoção enviada!")
 
-while True:
-    with open(ARQUIVO, "r", encoding="utf-8") as f:
-        linhas = [x.strip() for x in f if x.strip()]
-
-    for i in range(0, len(linhas), 3):
-        if i + 2 < len(linhas):
-            enviar(linhas[i], linhas[i+1], linhas[i+2])
-            time.sleep(1800)
+        with open("promocoes.txt", "w", encoding="utf-8") as arquivo:
+            arquivo.write("\n".join(linhas[3:]))
+    else:
+        print("Erro ao enviar:", resposta.text)
+else:
+    print("Não há promoções suficientes.")
